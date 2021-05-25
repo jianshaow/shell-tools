@@ -21,10 +21,10 @@ pod_dir=${pod_uid//\-/\_}
 
 pod_cgroup_path=/sys/fs/cgroup/cpu/kubepods.slice${cgroup_path_prefix}.slice${cgroup_path_prefix}-pod${pod_dir}.slice
 
+echo get cgroup info from pod $pod_name on $node_name:$pod_cgroup_path
+
 container_cgroup_path=${pod_cgroup_path}/docker-$main_app_container_id.scope
-
-echo get cgroup info from pod $pod_name on $node_name:$cgroup_path
-
+echo container cgroup info on $container_cgroup_path
 cpu_shares=$(ssh $node_name cat $container_cgroup_path/cpu.shares)
 cfs_quota_us=$(ssh $node_name cat $container_cgroup_path/cpu.cfs_period_us)
 cpu_stat=$(ssh $node_name cat $container_cgroup_path/cpu.stat)
