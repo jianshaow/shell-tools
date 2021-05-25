@@ -9,31 +9,33 @@ print_cgroup_info() {
   cpu_stat=$(ssh $remote_node cat $cgroup_path/cpu.stat)
 
   echo [cpu]
-  echo "cpu_share:     $cpu_shares"
-  echo "cfs_period_us: $cfs_period_us"
-  echo "cfs_quota_us:  $cfs_quota_us"
-  echo "cpu_stat:      "$cpu_stat
+  echo "cpu_share:       $cpu_shares"
+  echo "cfs_period_us:   $cfs_period_us"
+  echo "cfs_quota_us:    $cfs_quota_us"
+  echo "cpu_stat:        "$cpu_stat
 }
 
 get_container_cgroup_info() {
   node=$1
-  container=$2
+  parent_path=$2
+  container=$3
   container=${container//|/ }
   array=($container)
   container_name=${array[0]}
   container_id=${array[1]}
   container_uid=${container_id#*//}
 
-  container_cgroup_path=${pod_cgroup_path}/docker-$container_uid.scope
+  container_cgroup_path=${parent_path}/docker-$container_uid.scope
   echo -------------------------- $container_name --------------------------
   # echo get container $container_name cgroup info on $container_cgroup_path
 
-  print_cgroup_info $node_name $container_cgroup_path
+  print_cgroup_info $node $container_cgroup_path
 }
 
 get_pod_cgroup_info() {
-  pod=$1
-  pod=${container//|/ }
+  ns=$1
+  pod=$2
+  pod=${pod//|/ }
   array=($pod)
   pod_name=${array[0]}
   pod_uid=${array[1]}
@@ -56,19 +58,19 @@ get_pod_cgroup_info() {
 
   print_cgroup_info $node_name $pod_cgroup_path
 
-  containers=$(kubectl -n $namespace get po $pod_name -ojsonpath='{range .status.containerStatuses[*]}{.name}{"|"}{.containerID}{" "}{end}')
+  containers=$(kubectl -n $ns get po $pod_name -ojsonpath='{range .status.containerStatuses[*]}{.name}{"|"}{.containerID}{" "}{end}')
 
   for container in $containers; do
-    get_container_cgroup_info $container
+    get_container_cgroup_info $node_name $pod_cgroup_path $container
   done
 }
 
 get_cgroup_info_by_label() {
-  namespace=$1
+  ns=$1
   label=$2
-  pods=$(kubectl -n $namespace get po -l $label -ojsonpath='{range .items[*]}{.metadata.name}{"|"}{.metadata.uid}{"|"}{.spec.nodeName}{"|"}{.status.hostIP}{"|"}{.status.qosClass}{" "}{end}')
+  pods=$(kubectl -n $ns get po -l $label -ojsonpath='{range .items[*]}{.metadata.name}{"|"}{.metadata.uid}{"|"}{.spec.nodeName}{"|"}{.status.hostIP}{"|"}{.status.qosClass}{" "}{end}')
   for pod in $pods; do
-    get_pod_cgroup_info $pod
+    get_pod_cgroup_info $ns $pod
   done
 }
 
