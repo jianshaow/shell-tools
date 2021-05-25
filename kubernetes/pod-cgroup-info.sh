@@ -1,5 +1,4 @@
-namespace=$1
-app_label=$2
+#!/bin/sh
 
 print_cgroup_info() {
   remote_node=$1
@@ -32,11 +31,14 @@ get_container_cgroup_info() {
 }
 
 get_pod_cgroup_info() {
-  pod_name=$1
+  pod=$1
+  pod=${container//|/ }
+  array=($pod)
+  pod_name=${array[0]}
+  pod_uid=${array[1]}
 
   node_name=$(kubectl -n $namespace get po $pod_name -ojsonpath='{.spec.nodeName}')
   host_ip=$(kubectl -n $namespace get po $pod_name -ojsonpath='{.status.hostIP}')
-  pod_uid=$(kubectl -n $namespace get po $pod_name -ojsonpath='{.metadata.uid}')
   pod_qos_class=$(kubectl -n $namespace get po $pod_name -ojsonpath='{.status.qosClass}')
 
   cgroup_path_prefix=""
@@ -61,6 +63,13 @@ get_pod_cgroup_info() {
   done
 }
 
-pod_name=$(kubectl -n $namespace get po -l app.kubernetes.io/name=$app_label -ojsonpath='{.items[0].metadata.name}')
+get_cgroup_info_by_label() {
+  namespace=$1
+  lable=$2
+  pods=$(kubectl -n $namespace get po -l $label -ojsonpath='{range .items[*]}{.metadata.name}{"|"}{.metadata.uid}{" "}{end}')
+  for pod in $pods; do
+    get_pod_cgroup_info $pod
+  done
+}
 
-get_pod_cgroup_info $pod_name
+get_cgroup_info_by_label $1 $2
