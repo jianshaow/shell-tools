@@ -16,7 +16,8 @@ print_cgroup_info() {
 }
 
 get_container_cgroup_info() {
-  container=$1
+  node=$1
+  container=$2
   container=${container//|/ }
   array=($container)
   container_name=${array[0]}
@@ -36,15 +37,14 @@ get_pod_cgroup_info() {
   array=($pod)
   pod_name=${array[0]}
   pod_uid=${array[1]}
-
-  node_name=$(kubectl -n $namespace get po $pod_name -ojsonpath='{.spec.nodeName}')
-  host_ip=$(kubectl -n $namespace get po $pod_name -ojsonpath='{.status.hostIP}')
-  pod_qos_class=$(kubectl -n $namespace get po $pod_name -ojsonpath='{.status.qosClass}')
+  node_name=${array[2]}
+  host_ip=${array[3]}
+  qos_class=${array[4]}
 
   cgroup_path_prefix=""
-  if [ "$pod_qos_class" == "Burstable" ]; then
+  if [ "$qos_class" == "Burstable" ]; then
       cgroup_path_prefix="/kubepods-burstable"
-  elif [ "$pod_qos_class" == "Besteffort" ]; then
+  elif [ "$qos_class" == "Besteffort" ]; then
       cgroup_path_prefix="/kubepods-besteffort"
   fi
 
@@ -65,8 +65,8 @@ get_pod_cgroup_info() {
 
 get_cgroup_info_by_label() {
   namespace=$1
-  lable=$2
-  pods=$(kubectl -n $namespace get po -l $label -ojsonpath='{range .items[*]}{.metadata.name}{"|"}{.metadata.uid}{" "}{end}')
+  label=$2
+  pods=$(kubectl -n $namespace get po -l $label -ojsonpath='{range .items[*]}{.metadata.name}{"|"}{.metadata.uid}{"|"}{.spec.nodeName}{"|"}{.status.hostIP}{"|"}{.status.qosClass}{" "}{end}')
   for pod in $pods; do
     get_pod_cgroup_info $pod
   done
