@@ -3,6 +3,7 @@ app_label=eric-idm-oauth
 pod_name=$(kubectl -n idm get po -l app.kubernetes.io/name=eric-idm-oauth -ojsonpath='{.items[0].metadata.name}')
 
 node_name=$(kubectl -n idm get po $pod_name -ojsonpath='{.spec.nodeName}')
+host_ip=$(kubectl -n idm get po $pod_name -ojsonpath='{.status.hostIP}')
 pod_uid=$(kubectl -n idm get po $pod_name -ojsonpath='{.metadata.uid}')
 pod_qos_class=$(kubectl -n idm get po $pod_name -ojsonpath='{.status.qosClass}')
 
@@ -16,10 +17,15 @@ fi
 
 pod_dir=${pod_uid//\-/\_}
 
-cgroup_path=/sys/fs/cgroup/cpu/kubepods.slice${cgroup_path_prefix}.slice${cgroup_path_prefix}-pod${pod_dir}.slice
+pod_cgroup_path=/sys/fs/cgroup/cpu/kubepods.slice${cgroup_path_prefix}.slice${cgroup_path_prefix}-pod${pod_dir}.slice
+
+container_cgroup_path=${pod_cgroup_path}/docker-$main_app_container_id.scope
 
 echo execute pod $pod_name on $node_name:$cgroup_path
 
-echo main-app containerId: $main_app_container_id
+cpu_shares=$(ssh $node_name cat $container_cgroup_path/cpu.shares)
+cfs_quota_us=$(ssh $node_name cat $container_cgroup_path/cpu.cfs_period_us)
 
-ssh $node_name ls $cgroup_path
+echo [cpu]
+echo cpu_share: $cpu_shares
+echo cfs_quota_us: $cfs_quota_us
