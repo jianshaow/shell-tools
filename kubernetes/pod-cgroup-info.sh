@@ -32,4 +32,4 @@ cpu_stat=$(ssh $node_name cat $container_cgroup_path/cpu.stat)
 echo [cpu]
 echo cpu_share: $cpu_shares
 echo cfs_quota_us: $cfs_quota_us
-echo cpu_stat: $cpu.stat
+echo cpu_stat: $cpu_stat
