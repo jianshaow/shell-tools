@@ -1,6 +1,6 @@
-app_label=eric-idm-oauth
+app_label=$1
 
-pod_name=$(kubectl -n idm get po -l app.kubernetes.io/name=eric-idm-oauth -ojsonpath='{.items[0].metadata.name}')
+pod_name=$(kubectl -n idm get po -l app.kubernetes.io/name=$app_label -ojsonpath='{.items[0].metadata.name}')
 
 node_name=$(kubectl -n idm get po $pod_name -ojsonpath='{.spec.nodeName}')
 host_ip=$(kubectl -n idm get po $pod_name -ojsonpath='{.status.hostIP}')
@@ -12,7 +12,9 @@ main_app_container_id=${main_app_container_id#*//}
 
 cgroup_path_prefix=""
 if [ "$pod_qos_class" == "Burstable" ]; then
-  cgroup_path_prefix="/kubepods-burstable"
+    cgroup_path_prefix="/kubepods-burstable"
+elif [ "$pod_qos_class" == "Besteffort" ]; then
+    cgroup_path_prefix="/kubepods-besteffort"
 fi
 
 pod_dir=${pod_uid//\-/\_}
@@ -21,7 +23,7 @@ pod_cgroup_path=/sys/fs/cgroup/cpu/kubepods.slice${cgroup_path_prefix}.slice${cg
 
 container_cgroup_path=${pod_cgroup_path}/docker-$main_app_container_id.scope
 
-echo execute pod $pod_name on $node_name:$cgroup_path
+echo get cgroup info from pod $pod_name on $node_name:$cgroup_path
 
 cpu_shares=$(ssh $node_name cat $container_cgroup_path/cpu.shares)
 cfs_quota_us=$(ssh $node_name cat $container_cgroup_path/cpu.cfs_period_us)
