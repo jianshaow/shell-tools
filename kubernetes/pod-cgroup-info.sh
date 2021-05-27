@@ -1,7 +1,7 @@
 #!/bin/bash
 
 . minikube-containerd-env.sh
-# . k8s-docker.env.sh
+# . k8s-docker-env.sh
 
 cgroup_subsystems='cpu memory'
 
@@ -69,8 +69,8 @@ get_container_cgroup_info() {
 
   container_cgroup_path=${parent_path}/$container_dir_prefix$container_uid$container_dir_suffix
   echo --------------------------------------- container info ---------------------------------------
-  echo "container_name: $container_name"
-  echo "container_id:   $container_id"
+  echo "container_name:  $container_name"
+  echo "container_id:    $container_id"
   echo ----------------------------------------------------------------------------------------------
 
   print_cgroup_info $node $container_cgroup_path
@@ -90,20 +90,20 @@ get_pod_cgroup_info() {
   qos_class_dir=""
   if [ "$qos_class" == "Burstable" ]; then
       qos_class_dir="/${qos_class_prefix}burstable"
-      get_pod_dir_prefix $qos_class_dir
+      pod_dir_prefix=$(get_pod_dir_prefix $qos_class_dir)
   elif [ "$qos_class" == "BestEffort" ]; then
       qos_class_dir="/${qos_class_prefix}besteffort"
-      get_pod_dir_prefix $qos_class_dir
+      pod_dir_prefix=$(get_pod_dir_prefix $qos_class_dir)
   fi
 
   pod_dir=$(get_pod_dir $pod_uid)
 
   echo ============================================ pod info ========================================
-  echo "pod_name:     $pod_name"
-  echo "pod_uid:      $pod_uid"
-  echo "node_name:    $node_name"
-  echo "host_ip:      $host_ip"
-  echo "qos_class:    $qos_class"
+  echo "pod_name:        $pod_name"
+  echo "pod_uid:         $pod_uid"
+  echo "node_name:       $node_name"
+  echo "host_ip:         $host_ip"
+  echo "qos_class:       $qos_class"
   echo ==============================================================================================
 
   pod_cgroup_path=/sys/fs/cgroup/@subsystem@/$kube_dir${qos_class_dir}$kube_cgroup_suffix${pod_dir_prefix}${pod_dir}$kube_cgroup_suffix
