@@ -1,7 +1,11 @@
 #!/bin/bash
 
-. minikube-containerd-env.sh
+if [ "$env_script" != "" ]; then
+  . $env_script
+else
+  . minikube-containerd-env.sh
 # . k8s-docker-env.sh
+fi
 
 cgroup_subsystems='cpu memory'
 
