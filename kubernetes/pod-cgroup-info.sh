@@ -1,4 +1,5 @@
 #!/bin/bash
+. pod-common.sh
 
 if [ "$env_script" != "" ]; then
   . $env_script
@@ -9,10 +10,6 @@ fi
 
 if [ "$cgroup_subsystems" == "" ]; then
   cgroup_subsystems='cpu memory'
-fi
-
-if [ "$ns" == "" ]; then
-  ns=default
 fi
 
 cat_remote_file() {
@@ -119,7 +116,7 @@ get_pod_cgroup_info() {
   pod_cgroup_path=/sys/fs/cgroup/@subsystem@/$kube_dir${qos_class_dir}$kube_cgroup_suffix${pod_dir_prefix}${pod_dir}$kube_cgroup_suffix
   print_cgroup_info $host_ip $pod_cgroup_path
 
-  containers=$(kubectl -n $ns get po $pod_name -ojsonpath='{range .status.containerStatuses[*]}{.name}{"|"}{.containerID}{" "}{end}')
+  containers=$(get_container_info_by_pod $pod_name)
 
   for container in $containers; do
     get_container_cgroup_info $host_ip $pod_cgroup_path $container
@@ -128,7 +125,7 @@ get_pod_cgroup_info() {
 
 get_cgroup_info_by_label() {
   label=$1
-  pods=$(kubectl -n $ns get po -l $label -ojsonpath='{range .items[*]}{.metadata.name}{"|"}{.metadata.uid}{"|"}{.spec.nodeName}{"|"}{.status.hostIP}{"|"}{.status.qosClass}{" "}{end}')
+  pods=$(get_pod_info_by_label $label)
   for pod in $pods; do
     get_pod_cgroup_info $ns $pod
   done
@@ -136,7 +133,7 @@ get_cgroup_info_by_label() {
 
 get_cgroup_info_by_pod() {
   pod_name=$1
-  pods=$(kubectl -n $ns get po $pod_name -ojsonpath='{.metadata.name}{"|"}{.metadata.uid}{"|"}{.spec.nodeName}{"|"}{.status.hostIP}{"|"}{.status.qosClass}')
+  pods=$(get_pod_info_by_name $pod_name)
   for pod in $pods; do
     get_pod_cgroup_info $ns $pod
   done
@@ -149,13 +146,13 @@ usage () {
 }
 
 case $1 in
-    -l)
-        get_cgroup_info_by_label $2
-        ;;
-    -p)
-        get_cgroup_info_by_pod $2
-        ;;
-    *)
-        usage
-        ;;
+  -l)
+    get_cgroup_info_by_label $2
+    ;;
+  -p)
+    get_cgroup_info_by_pod $2
+    ;;
+  *)
+    usage
+    ;;
 esac
