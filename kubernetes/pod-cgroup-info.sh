@@ -7,7 +7,13 @@ else
 # . k8s-docker-env.sh
 fi
 
-cgroup_subsystems='cpu memory'
+if [ "$cgroup_subsystems" == "" ]; then
+  cgroup_subsystems='cpu memory'
+fi
+
+if [ "$ns" == "" ]; then
+  ns=default
+fi
 
 cat_remote_file() {
   remote_node=$1
@@ -121,12 +127,35 @@ get_pod_cgroup_info() {
 }
 
 get_cgroup_info_by_label() {
-  ns=$1
-  label=$2
+  label=$1
   pods=$(kubectl -n $ns get po -l $label -ojsonpath='{range .items[*]}{.metadata.name}{"|"}{.metadata.uid}{"|"}{.spec.nodeName}{"|"}{.status.hostIP}{"|"}{.status.qosClass}{" "}{end}')
   for pod in $pods; do
     get_pod_cgroup_info $ns $pod
   done
 }
 
-get_cgroup_info_by_label $1 $2
+get_cgroup_info_by_pod() {
+  pod_name=$1
+  pods=$(kubectl -n $ns get po $pod_name -ojsonpath='{.metadata.name}{"|"}{.metadata.uid}{"|"}{.spec.nodeName}{"|"}{.status.hostIP}{"|"}{.status.qosClass}')
+  for pod in $pods; do
+    get_pod_cgroup_info $ns $pod
+  done
+}
+
+usage () {
+  echo "Usage: `basename $0` {label <label>|pod <pod>}"
+  echo
+  return 2
+}
+
+case $1 in
+    label)
+        get_cgroup_info_by_label $2
+        ;;
+    pod)
+        get_cgroup_info_by_pod $2
+        ;;
+    *)
+        usage
+        ;;
+esac
