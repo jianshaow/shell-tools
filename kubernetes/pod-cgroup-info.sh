@@ -143,16 +143,16 @@ get_cgroup_info_by_pod() {
 }
 
 usage () {
-  echo "Usage: `basename $0` {label <label>|pod <pod>}"
+  echo "Usage: `basename $0` {-l <label>|-p <pod>}"
   echo
   return 2
 }
 
 case $1 in
-    label)
+    -l)
         get_cgroup_info_by_label $2
         ;;
-    pod)
+    -p)
         get_cgroup_info_by_pod $2
         ;;
     *)
