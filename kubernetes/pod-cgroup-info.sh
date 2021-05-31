@@ -59,9 +59,13 @@ print_cgroup_memory_info() {
   cgroup_memory_path=$2
 
   limit_in_bytes=$(cat_remote_file $remote_node $cgroup_memory_path/memory.limit_in_bytes)
+  usage_in_bytes=$(cat_remote_file $remote_node $cgroup_memory_path/memory.usage_in_bytes)
+  failcnt=$(cat_remote_file $remote_node $cgroup_memory_path/memory.failcnt)
 
   echo [memory]
   echo "limit_in_bytes:  $limit_in_bytes"
+  echo "usage_in_bytes:  $usage_in_bytes"
+  echo "failcnt:         $failcnt"
 }
 
 get_container_cgroup_info() {
@@ -79,7 +83,6 @@ get_container_cgroup_info() {
   echo "container_name:  $container_name"
   echo "container_id:    $container_id"
   echo ----------------------------------------------------------------------------------------------
-
   print_cgroup_info $node $container_cgroup_path
 }
 
@@ -104,7 +107,7 @@ get_pod_cgroup_info() {
   fi
 
   pod_dir=$(get_pod_dir $pod_uid)
-
+  pod_cgroup_path=/sys/fs/cgroup/@subsystem@/$kube_dir$qos_class_dir$kube_cgroup_suffix$pod_dir_prefix$pod_dir$kube_cgroup_suffix
   echo ============================================ pod info ========================================
   echo "pod_name:        $pod_name"
   echo "pod_uid:         $pod_uid"
@@ -112,12 +115,9 @@ get_pod_cgroup_info() {
   echo "host_ip:         $host_ip"
   echo "qos_class:       $qos_class"
   echo ==============================================================================================
-
-  pod_cgroup_path=/sys/fs/cgroup/@subsystem@/$kube_dir${qos_class_dir}$kube_cgroup_suffix${pod_dir_prefix}${pod_dir}$kube_cgroup_suffix
   print_cgroup_info $host_ip $pod_cgroup_path
 
   containers=$(get_container_info_by_pod $pod_name)
-
   for container in $containers; do
     get_container_cgroup_info $host_ip $pod_cgroup_path $container
   done
