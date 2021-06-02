@@ -87,8 +87,7 @@ get_container_cgroup_info() {
 }
 
 get_pod_cgroup_info() {
-  ns=$1
-  pod=$2
+  pod=$1
   pod=${pod//|/ }
   array=($pod)
   pod_name=${array[0]}
@@ -127,16 +126,14 @@ get_cgroup_info_by_label() {
   label=$1
   pods=$(get_pod_info_by_label $label)
   for pod in $pods; do
-    get_pod_cgroup_info $ns $pod
+    get_pod_cgroup_info $pod
   done
 }
 
 get_cgroup_info_by_pod() {
   pod_name=$1
-  pods=$(get_pod_info_by_name $pod_name)
-  for pod in $pods; do
-    get_pod_cgroup_info $ns $pod
-  done
+  pod=$(get_pod_info_by_name $pod_name)
+  get_pod_cgroup_info $pod
 }
 
 usage () {
