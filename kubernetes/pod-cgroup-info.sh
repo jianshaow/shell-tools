@@ -48,10 +48,10 @@ print_cgroup_cpu_info() {
   cpu_stat=$(cat_remote_file $remote_node $cgroup_cpu_path/cpu.stat)
 
   echo [cpu]
-  echo "cpu_share:       $cpu_shares"
-  echo "cfs_period_us:   $cfs_period_us"
-  echo "cfs_quota_us:    $cfs_quota_us"
-  echo "cpu_stat:        "$cpu_stat
+  echo "cpu_share:           $cpu_shares"
+  echo "cfs_period_us:       $cfs_period_us"
+  echo "cfs_quota_us:        $cfs_quota_us"
+  echo "cpu_stat:            "$cpu_stat
 }
 
 print_cgroup_memory_info() {
@@ -60,12 +60,14 @@ print_cgroup_memory_info() {
 
   limit_in_bytes=$(cat_remote_file $remote_node $cgroup_memory_path/memory.limit_in_bytes)
   usage_in_bytes=$(cat_remote_file $remote_node $cgroup_memory_path/memory.usage_in_bytes)
+  max_usage_in_bytes=$(cat_remote_file $remote_node $cgroup_memory_path/memory.max_usage_in_bytes)
   failcnt=$(cat_remote_file $remote_node $cgroup_memory_path/memory.failcnt)
 
   echo [memory]
-  echo "limit_in_bytes:  $limit_in_bytes"
-  echo "usage_in_bytes:  $usage_in_bytes"
-  echo "failcnt:         $failcnt"
+  echo "limit_in_bytes:      $limit_in_bytes"
+  echo "usage_in_bytes:      $usage_in_bytes"
+  echo "max_usage_in_bytes:  $max_usage_in_bytes"
+  echo "failcnt:             $failcnt"
 }
 
 get_container_cgroup_info() {
