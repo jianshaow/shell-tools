@@ -37,7 +37,8 @@ get_pod_namespace_info() {
   done
 
   echo -------------------------------------- processes in pod --------------------------------------
-  remote_exec $host_ip "sudo ps -eo pidns,pid,args | grep ${ns_inodes['pid']: 0-11: 10} | grep -v grep"
+  ns_inode=${ns_inodes['pid']: 0-11: 10}
+  remote_exec $host_ip "sudo ps -eo pidns,user,ppid,pid,%cpu,%mem,args | grep 'PID\|$ns_inode' | grep -v grep"
   echo ----------------------------------------------------------------------------------------------
 }
 
