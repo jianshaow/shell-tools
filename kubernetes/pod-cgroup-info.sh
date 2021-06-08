@@ -1,5 +1,4 @@
 #!/bin/bash
-. pod-common.sh
 
 if [ "$env_script" != "" ]; then
   . $env_script
@@ -8,24 +7,12 @@ else
 # . k8s-docker-env.sh
 fi
 
+. pod-common.sh
+. execution-common.sh
+
 if [ "$cgroup_subsystems" == "" ]; then
   cgroup_subsystems='cpu memory'
 fi
-
-cat_remote_file() {
-  remote_node=$1
-  remote_file=$2
-
-  if [ "$ssh_user" != "" ]; then
-    user_args="$ssh_user@"
-  fi
-
-  if [ "$ssh_id_file" != "" ]; then
-    ssh_id_args="-i $ssh_id_file"
-  fi
-
-  ssh $user_args$remote_node $ssh_id_args cat $remote_file
-}
 
 print_cgroup_info() {
   remote_node=$1
@@ -42,10 +29,10 @@ print_cgroup_cpu_info() {
   remote_node=$1
   cgroup_cpu_path=$2
 
-  cpu_shares=$(cat_remote_file $remote_node $cgroup_cpu_path/cpu.shares)
-  cfs_period_us=$(cat_remote_file $remote_node $cgroup_cpu_path/cpu.cfs_period_us)
-  cfs_quota_us=$(cat_remote_file $remote_node $cgroup_cpu_path/cpu.cfs_quota_us)
-  cpu_stat=$(cat_remote_file $remote_node $cgroup_cpu_path/cpu.stat)
+  cpu_shares=$(remote_exec $remote_node "cat $cgroup_cpu_path/cpu.shares")
+  cfs_period_us=$(remote_exec $remote_node "cat $cgroup_cpu_path/cpu.cfs_period_us")
+  cfs_quota_us=$(remote_exec $remote_node "cat $cgroup_cpu_path/cpu.cfs_quota_us")
+  cpu_stat=$(remote_exec $remote_node "cat $cgroup_cpu_path/cpu.stat")
 
   echo [cpu]
   echo "cpu_share:           $cpu_shares"
@@ -58,10 +45,10 @@ print_cgroup_memory_info() {
   remote_node=$1
   cgroup_memory_path=$2
 
-  limit_in_bytes=$(cat_remote_file $remote_node $cgroup_memory_path/memory.limit_in_bytes)
-  usage_in_bytes=$(cat_remote_file $remote_node $cgroup_memory_path/memory.usage_in_bytes)
-  max_usage_in_bytes=$(cat_remote_file $remote_node $cgroup_memory_path/memory.max_usage_in_bytes)
-  failcnt=$(cat_remote_file $remote_node $cgroup_memory_path/memory.failcnt)
+  limit_in_bytes=$(remote_exec $remote_node "cat $cgroup_memory_path/memory.limit_in_bytes")
+  usage_in_bytes=$(remote_exec $remote_node "cat $cgroup_memory_path/memory.usage_in_bytes")
+  max_usage_in_bytes=$(remote_exec $remote_node "cat $cgroup_memory_path/memory.max_usage_in_bytes")
+  failcnt=$(remote_exec $remote_node "cat $cgroup_memory_path/memory.failcnt")
 
   echo [memory]
   echo "limit_in_bytes:      $limit_in_bytes"
@@ -118,23 +105,23 @@ get_pod_cgroup_info() {
   echo ==============================================================================================
   print_cgroup_info $host_ip $pod_cgroup_path
 
-  containers=$(get_container_info_by_pod $pod_name)
+  containers=$(get_container_by_pod $pod_name)
   for container in $containers; do
     get_container_cgroup_info $host_ip $pod_cgroup_path $container
   done
 }
 
-get_cgroup_info_by_label() {
+get_cgroup_by_label() {
   label=$1
-  pods=$(get_pod_info_by_label $label)
+  pods=$(get_pod_by_label $label)
   for pod in $pods; do
     get_pod_cgroup_info $pod
   done
 }
 
-get_cgroup_info_by_pod() {
+get_cgroup_by_pod() {
   pod_name=$1
-  pod=$(get_pod_info_by_name $pod_name)
+  pod=$(get_pod_by_name $pod_name)
   get_pod_cgroup_info $pod
 }
 
@@ -146,10 +133,10 @@ usage () {
 
 case $1 in
   -l)
-    get_cgroup_info_by_label $2
+    get_cgroup_by_label $2
     ;;
   -p)
-    get_cgroup_info_by_pod $2
+    get_cgroup_by_pod $2
     ;;
   *)
     usage
