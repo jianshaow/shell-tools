@@ -10,7 +10,7 @@ fi
 . pod-common.sh
 . execution-common.sh
 
-get_pod_namespace_info() {
+print_pod_namespace_info() {
   pod=$1
   pod=${pod//|/ }
   array=($pod)
@@ -36,9 +36,21 @@ get_pod_namespace_info() {
     echo "$key ${ns_inodes[$key]}" | awk '{ printf $1; for (i=0; i < 17-length($1); i++) printf " "; print "-> "$2 }'
   done
 
+  case $verbose_level in
+    1)
+      column="pidns,user,group,ppid,pid,%cpu,%mem,comm"
+      ;;
+    2)
+      column="pidns,user,group,ppid,pid,%cpu,%mem,start_time,args"
+      ;;
+    *)
+      column="pidns,ppid,pid,comm"
+      ;;
+  esac
+
   echo -------------------------------------- processes in pod --------------------------------------
   ns_inode=${ns_inodes['pid']: 0-11: 10}
-  remote_exec $host_ip "sudo ps -eo pidns,user,ppid,pid,%cpu,%mem,args | grep 'PID\|$ns_inode' | grep -v grep"
+  remote_exec $host_ip "sudo ps -eo $column | grep 'PID\|$ns_inode' | grep -v grep"
   echo ----------------------------------------------------------------------------------------------
 }
 
@@ -46,21 +58,32 @@ get_namespace_by_label() {
   label=$1
   pods=$(get_pod_by_label $label)
   for pod in $pods; do
-    get_pod_namespace_info $pod
+    print_pod_namespace_info $pod
   done
 }
 
 get_namespace_by_pod() {
   pod_name=$1
   pod=$(get_pod_by_name $pod_name)
-  get_pod_namespace_info $pod
+  print_pod_namespace_info $pod
 }
 
 usage () {
-  echo "Usage: `basename $0` {-l <label>|-p <pod>}"
+  echo "Usage: `basename $0` -l <label>|-p <pod> [-v|-vv]"
   echo
   return 2
 }
+
+case $3 in
+  -v)
+    verbose_level=1
+    ;;
+  -vv)
+    verbose_level=2
+    ;;
+  *)
+    ;;
+esac
 
 case $1 in
   -l)
