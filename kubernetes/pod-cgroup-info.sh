@@ -57,7 +57,7 @@ print_cgroup_memory_info() {
   echo "failcnt:             $failcnt"
 }
 
-get_container_cgroup_info() {
+print_container_cgroup_info() {
   node=$1
   parent_path=$2
   container=$3
@@ -75,7 +75,7 @@ get_container_cgroup_info() {
   print_cgroup_info $node $container_cgroup_path
 }
 
-get_pod_cgroup_info() {
+print_pod_cgroup_info() {
   pod=$1
   pod=${pod//|/ }
   array=($pod)
@@ -103,11 +103,15 @@ get_pod_cgroup_info() {
   echo "host_ip:         $host_ip"
   echo "qos_class:       $qos_class"
   echo ==============================================================================================
-  print_cgroup_info $host_ip $pod_cgroup_path
+  if [ "$arg_container_name" == "" ]; then
+    print_cgroup_info $host_ip $pod_cgroup_path
+  fi
 
   containers=$(get_container_by_pod $pod_name)
   for container in $containers; do
-    get_container_cgroup_info $host_ip $pod_cgroup_path $container
+    if [[ "$arg_container_name" == "" || "$arg_container_name" == ${container%|*} ]]; then
+      print_container_cgroup_info $host_ip $pod_cgroup_path $container
+    fi
   done
 }
 
@@ -115,21 +119,28 @@ get_cgroup_by_label() {
   label=$1
   pods=$(get_pod_by_label $label)
   for pod in $pods; do
-    get_pod_cgroup_info $pod
+    print_pod_cgroup_info $pod
   done
 }
 
 get_cgroup_by_pod() {
   pod_name=$1
   pod=$(get_pod_by_name $pod_name)
-  get_pod_cgroup_info $pod
+  print_pod_cgroup_info $pod
 }
 
 usage () {
-  echo "Usage: `basename $0` {-l <label>|-p <pod>}"
+  echo "Usage: `basename $0` -l <label>|-p <pod> [-c <contianer_name>]"
   echo
   return 2
 }
+
+if [[ "$3" == "-c" && "$4" != "" ]]; then
+  arg_container_name=$4
+elif [ "$3" != "" ]; then
+  usage
+  exit 1
+fi
 
 case $1 in
   -l)
