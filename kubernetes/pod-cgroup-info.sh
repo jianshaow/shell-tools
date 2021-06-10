@@ -1,12 +1,11 @@
 #!/bin/bash
 
-if [ "$env_script" != "" ]; then
-  . $env_script
-else
-  . minikube-containerd-env.sh
-# . k8s-docker-env.sh
+if [ ! -f "env.sh" ]; then
+  echo an env.sh needed, refer to example
+  exit 1
 fi
 
+. env.sh
 . pod-common.sh
 . execution-common.sh
 
