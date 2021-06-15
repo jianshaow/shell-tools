@@ -17,13 +17,15 @@ print_pod_namespace_info() {
   pod_uid=${array[1]}
   node_name=${array[2]}
   host_ip=${array[3]}
-  qos_class=${array[4]}
+  pod_ip=${array[4]}
+  qos_class=${array[5]}
 
   echo ============================================ pod info ========================================
   echo "pod_name:        $pod_name"
   echo "pod_uid:         $pod_uid"
   echo "node_name:       $node_name"
   echo "host_ip:         $host_ip"
+  echo "pod_ip:          $pod_ip"
   echo "qos_class:       $qos_class"
   echo ==============================================================================================
 
