@@ -30,7 +30,6 @@ print_pod_namespace_info() {
   ns_info=$(pod_exec $pod_name 'ls -l /proc/1/ns')
   declare -A ns_inodes
   eval $(echo "$ns_info" | awk 'NR>1 { print "ns_inodes["$9"]="$11 }')
-  # echo "$ns_info"|awk 'NR>1 {split($11, array, ":"); printf $9; for (i=0; i<20-length($9); i++) printf " "; print substr(array[2], 2, length(array[2])-2)}'
   for key in ${!ns_inodes[@]}; do
     echo "$key ${ns_inodes[$key]}" | awk '{ printf $1; for (i=0; i < 17-length($1); i++) printf " "; print "-> "$2 }'
   done
