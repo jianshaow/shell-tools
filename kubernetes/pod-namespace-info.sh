@@ -45,6 +45,7 @@ print_container_namespace_info() {
   echo ----------------------------------- processes in container -----------------------------------
   ns_inode=${ns_inodes['pid']: 0-11: 10}
   remote_exec $host_ip "sudo ps -eo $column | grep 'PID\|$ns_inode' | grep -v grep"
+  echo
 }
 
 print_pod_namespace_info() {
@@ -69,7 +70,9 @@ print_pod_namespace_info() {
 
   containers=$(get_container_by_pod $pod_name)
   for container in $containers; do
-    print_container_namespace_info $host_ip $pod_name $container
+    if [[ "$args_container_name" == "" || "$args_container_name" == ${container%|*} ]]; then
+      print_container_namespace_info $host_ip $pod_name $container
+    fi
   done
 }
 
@@ -94,6 +97,24 @@ usage () {
 }
 
 case $3 in
+  -v)
+    verbose_level=1
+    ;;
+  -vv)
+    verbose_level=2
+    ;;
+  -c)
+    if [ "$4" == "" ]; then
+      usage
+      exit 1
+    fi
+    args_container_name=$4
+    ;;
+  *)
+    ;;
+esac
+
+case $5 in
   -v)
     verbose_level=1
     ;;

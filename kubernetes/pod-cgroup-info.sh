@@ -104,13 +104,13 @@ print_pod_cgroup_info() {
   echo "pod_ip:          $pod_ip"
   echo "qos_class:       $qos_class"
   echo ==============================================================================================
-  if [ "$arg_container_name" == "" ]; then
+  if [ "$args_container_name" == "" ]; then
     print_cgroup_info $host_ip $pod_cgroup_path
   fi
 
   containers=$(get_container_by_pod $pod_name)
   for container in $containers; do
-    if [[ "$arg_container_name" == "" || "$arg_container_name" == ${container%|*} ]]; then
+    if [[ "$args_container_name" == "" || "$args_container_name" == ${container%|*} ]]; then
       print_container_cgroup_info $host_ip $pod_cgroup_path $container
     fi
   done
@@ -136,12 +136,17 @@ usage () {
   return 2
 }
 
-if [[ "$3" == "-c" && "$4" != "" ]]; then
-  arg_container_name=$4
-elif [ "$3" != "" ]; then
-  usage
-  exit 1
-fi
+case $3 in
+  -c)
+    if [ "$4" == "" ]; then
+      usage
+      exit 1
+    fi
+    args_container_name=$4
+    ;;
+  *)
+    ;;
+esac
 
 case $1 in
   -l)
