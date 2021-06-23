@@ -58,8 +58,9 @@ print_cgroup_memory_info() {
 
 print_container_cgroup_info() {
   node=$1
-  parent_path=$2
-  container=$3
+  pod_name=$2
+  parent_path=$3
+  container=$4
   container=${container//|/ }
   array=($container)
   container_name=${array[0]}
@@ -67,9 +68,13 @@ print_container_cgroup_info() {
   container_uid=${container_id#*//}
 
   container_cgroup_path=${parent_path}/$container_dir_prefix$container_uid$container_dir_suffix
+  resources=$(get_container_resources $pod_name $container_name)
   echo --------------------------------------- container info ---------------------------------------
   echo "container_name:  $container_name"
   echo "container_id:    $container_id"
+  echo resources
+  echo "  limits:        ${resources%|*}"
+  echo "  requests:      ${resources#*|}"
   echo ----------------------------------------------------------------------------------------------
   print_cgroup_info $node $container_cgroup_path
 }
@@ -111,7 +116,7 @@ print_pod_cgroup_info() {
   containers=$(get_container_by_pod $pod_name)
   for container in $containers; do
     if [[ "$args_container_name" == "" || "$args_container_name" == ${container%|*} ]]; then
-      print_container_cgroup_info $host_ip $pod_cgroup_path $container
+      print_container_cgroup_info $host_ip $pod_name $pod_cgroup_path $container
     fi
   done
 }

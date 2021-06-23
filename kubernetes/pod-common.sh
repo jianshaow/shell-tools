@@ -20,6 +20,13 @@ get_container_by_pod() {
   echo $containers
 }
 
+get_container_resources() {
+  pod_name=$1
+  container_name=$2
+  resources=$(kubectl -n $ns get po $pod_name -ojsonpath='{.spec.containers[?(@.name=="'$container_name'")].resources.limits}{"|"}{.spec.containers[?(@.name=="'$container_name'")].resources.requests}')
+  echo $resources
+}
+
 pod_exec() {
   pod_name=$1
   container_name=$2
