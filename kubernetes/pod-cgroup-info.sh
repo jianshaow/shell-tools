@@ -89,6 +89,7 @@ print_pod_cgroup_info() {
   host_ip=${array[3]}
   pod_ip=${array[4]}
   qos_class=${array[5]}
+  phase=${array[6]}
 
   qos_class_dir=""
   if [ "$qos_class" == "Burstable" ]; then
@@ -108,7 +109,13 @@ print_pod_cgroup_info() {
   echo "host_ip:         $host_ip"
   echo "pod_ip:          $pod_ip"
   echo "qos_class:       $qos_class"
+  echo "phase:           $phase"
   echo ==============================================================================================
+
+  if [ "$phase" != "Running" ]; then
+    exit 1
+  fi
+
   if [ "$args_container_name" == "" ]; then
     print_cgroup_info $host_ip $pod_cgroup_path
   fi

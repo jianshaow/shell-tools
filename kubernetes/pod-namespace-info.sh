@@ -58,6 +58,7 @@ print_pod_namespace_info() {
   host_ip=${array[3]}
   pod_ip=${array[4]}
   qos_class=${array[5]}
+  phase=${array[6]}
 
   echo ============================================ pod info ========================================
   echo "pod_name:        $pod_name"
@@ -66,7 +67,12 @@ print_pod_namespace_info() {
   echo "host_ip:         $host_ip"
   echo "pod_ip:          $pod_ip"
   echo "qos_class:       $qos_class"
+  echo "phase:           $phase"
   echo ==============================================================================================
+
+  if [ "$phase" != "Running" ]; then
+    exit 1
+  fi
 
   containers=$(get_container_by_pod $pod_name)
   for container in $containers; do
