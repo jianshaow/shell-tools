@@ -10,5 +10,5 @@ remote_exec() {
   host=$1
   cmd=$2
 
-  ssh $user_args$host $ssh_id_args "echo exec_started; $cmd" | awk 'BEGIN { started="false" } {if (started=="true") {print $0} else { if ($0=="exec_started") { started="true" } } }'
+  ssh $user_args$host $ssh_id_args "echo exec_started; $cmd" | awk 'BEGIN { started="false" } {if (started=="true") {printf $0} else { if ($0=="exec_started") { started="true" } } }'
 }
