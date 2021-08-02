@@ -10,5 +10,9 @@ remote_exec() {
   host=$1
   cmd=$2
 
-  ssh $user_args$host $ssh_id_args $cmd 2> /dev/null
+  if [ "$ignore_err" == "" ]; then
+    ssh $user_args$host $ssh_id_args $cmd
+  else
+    ssh $user_args$host $ssh_id_args $cmd 2> /dev/null
+  fi
 }
