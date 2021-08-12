@@ -18,35 +18,47 @@ print_pod_resources_by_label() {
   pod_label=$1
   all_flag=$2
 
+  resource_jsonpath='{.name}{"\t\tlimits:"}{.resources.limits}{"\n\t\t\trequests:"}{.resources.requests}{"\n"}'
+  split_line='--------------------------------------------------------------------------------'
+
  if [ "$all_flag" == "--all" ]; then
-   kubectl -n $ns get po -l $pod_label -ojsonpath='{range .items[*]}{"---- pod "}{.metadata.name}{" ----\n"}{range .spec.containers[*]}{.name}{"\t\tlimits:"}{.resources.limits}{"\n\t\t\trequests:"}{.resources.requests}{"\n"}{end}{end}'
+   kubectl -n $ns get po -l $pod_label -ojsonpath='{range .items[*]}{"'$split_line'\npod: "}{.metadata.name}{"\n'$split_line'\n"}{range .spec.containers[*]}'$resource_jsonpath'{end}{end}'
  else
-   kubectl -n $ns get po -l $pod_label -ojsonpath='{range .items[0].spec.containers[*]}{.name}{"\t\tlimits:"}{.resources.limits}{"\n\t\t\trequests:"}{.resources.requests}{"\n"}{end}'
+   kubectl -n $ns get po -l $pod_label -ojsonpath='{range .items[0].spec.containers[*]}'$resource_jsonpath'{end}'
  fi
 }
 
-print_pod_resources_of_deployment() {
-  deployment_label=$1
+print_pod_resources_of_workload() {
+  workload=$1
+  workload_label=$2
 
-  if [ "$deployment_label" != "" ]; then
-    label_args="-l $deployment_label"
+  if [ "$workload_label" != "" ]; then
+    label_args="-l $workload_label"
   fi
 
-  kubectl -n $ns get deploy --no-headers $label_args -ojsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | xargs -I {} bash -c "echo '==== deployment {} ===='; ./pod-resource-info.sh -a {}"
+  split_line='================================================================================'
+
+  kubectl -n $ns get $workload --no-headers $label_args -ojsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | xargs -I {} bash -c "echo $split_line; echo $workload: {}; echo $split_line; ./pod-resource-info.sh -a {}"
 }
 
 usage () {
-  echo "Usage: `basename $0` [-d <deployment_label>|-a <app_name>|-p <pod>]"
+  echo "Usage: `basename $0` [ [-d|-s|--daemonset] <label>|-a <app_name>|-p <pod>]"
   echo
   return 2
 }
 
 case $1 in
   -d)
-    print_pod_resources_of_deployment $2
+    print_pod_resources_of_workload deployment $2
+    ;;
+  -s)
+    print_pod_resources_of_workload statefulset $2
+    ;;
+  --daemonset)
+    print_pod_resources_of_workload daemonset $2
     ;;
   -a)
-    print_pod_resources_by_label $app_name_label=$2
+    print_pod_resources_by_label $app_name_label=$2 $3
     ;;
   -p)
     print_pod_resources_by_name $2
