@@ -34,6 +34,7 @@ print_pod_resources_of_workload() {
     all_flag=$2
   else
     workload_label=$2
+    all_flag=$3
   fi
 
   if [ "$workload_label" != "" ]; then
