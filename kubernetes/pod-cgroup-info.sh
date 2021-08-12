@@ -143,7 +143,7 @@ get_cgroup_by_pod() {
 }
 
 usage () {
-  echo "Usage: `basename $0` -l <label>|-p <pod> [-c <contianer_name>]"
+  echo "Usage: `basename $0` [-l <label>|-a <app_name>|-p <pod>] [-c <contianer_name>]"
   echo
   return 2
 }
@@ -163,6 +163,9 @@ esac
 case $1 in
   -l)
     get_cgroup_by_label $2
+    ;;
+  -a)
+    get_cgroup_by_label $app_name_label=$2
     ;;
   -p)
     get_cgroup_by_pod $2

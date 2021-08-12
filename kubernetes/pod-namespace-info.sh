@@ -97,7 +97,7 @@ get_namespace_by_pod() {
 }
 
 usage () {
-  echo "Usage: `basename $0` -l <label>|-p <pod> [-v|-vv]"
+  echo "Usage: `basename $0` [-l <label>|-n <app_name>|-p <pod>] [-v|-vv]"
   echo
   return 2
 }
@@ -134,6 +134,9 @@ esac
 case $1 in
   -l)
     get_namespace_by_label $2
+    ;;
+  -a)
+    get_namespace_by_label $app_name_label=$2
     ;;
   -p)
     get_namespace_by_pod $2
