@@ -18,10 +18,10 @@ print_pod_resources_by_label() {
   pod_label=$1
   all_flag=$2
 
- if [ "$all_flag" == "-a" ]; then
-   kubectl -n $ns get po -l $pod_label -ojsonpath='{range .items[*]}{"---- pod "}{.metadata.name}{" ----\n"}{range .spec.containers[*]}{.name}{"\t\tlimits:"}{.resources.limits}{"\n\t\trequests:"}{.resources.requests}{"\n"}{end}{end}'
+ if [ "$all_flag" == "--all" ]; then
+   kubectl -n $ns get po -l $pod_label -ojsonpath='{range .items[*]}{"---- pod "}{.metadata.name}{" ----\n"}{range .spec.containers[*]}{.name}{"\t\tlimits:"}{.resources.limits}{"\n\t\t\trequests:"}{.resources.requests}{"\n"}{end}{end}'
  else
-   kubectl -n $ns get po -l $pod_label -ojsonpath='{range .items[0].spec.containers[*]}{.name}{"\t\tlimits:"}{.resources.limits}{"\n\t\trequests:"}{.resources.requests}{"\n"}{end}'
+   kubectl -n $ns get po -l $pod_label -ojsonpath='{range .items[0].spec.containers[*]}{.name}{"\t\tlimits:"}{.resources.limits}{"\n\t\t\trequests:"}{.resources.requests}{"\n"}{end}'
  fi
 }
 
