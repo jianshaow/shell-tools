@@ -24,7 +24,7 @@ print_pod_resources_by_label() {
  if [ "$all_flag" == "--all" ]; then
    kubectl -n $ns get po -l $pod_label -ojsonpath='{range .items[*]}{"'$split_line'\npod: "}{.metadata.name}{"\n'$split_line'\n"}{range .spec.containers[*]}'$resource_jsonpath'{end}{end}'
  else
-   kubectl -n $ns get po -l $pod_label -ojsonpath='{range .items[0].spec.containers[*]}'$resource_jsonpath'{end}'
+   kubectl -n $ns get po -l $pod_label -ojsonpath='{"'$split_line'\npod: "}{.items[0].metadata.name}{"\n'$split_line'\n"}{range .items[0].spec.containers[*]}'$resource_jsonpath'{end}'
  fi
 }
 
