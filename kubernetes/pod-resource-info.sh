@@ -30,7 +30,11 @@ print_pod_resources_by_label() {
 
 print_pod_resources_of_workload() {
   workload=$1
-  workload_label=$2
+  if [ "$2" == "--all" ]; then
+    all_flag=$2
+  else
+    workload_label=$2
+  fi
 
   if [ "$workload_label" != "" ]; then
     label_args="-l $workload_label"
@@ -38,7 +42,7 @@ print_pod_resources_of_workload() {
 
   split_line='================================================================================'
 
-  kubectl -n $ns get $workload --no-headers $label_args -ojsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | xargs -I {} bash -c "echo $split_line; echo $workload: {}; echo $split_line; ./pod-resource-info.sh -a {}"
+  kubectl -n $ns get $workload --no-headers $label_args -ojsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | xargs -I {} bash -c "echo $split_line; echo $workload: {}; echo $split_line; ./pod-resource-info.sh -a {} $all_flag"
 }
 
 usage () {
@@ -49,13 +53,13 @@ usage () {
 
 case $1 in
   -d)
-    print_pod_resources_of_workload deployment $2
+    print_pod_resources_of_workload deployment $2 $3
     ;;
   -s)
-    print_pod_resources_of_workload statefulset $2
+    print_pod_resources_of_workload statefulset $2 $3
     ;;
   --daemonset)
-    print_pod_resources_of_workload daemonset $2
+    print_pod_resources_of_workload daemonset $2 $3
     ;;
   -a)
     print_pod_resources_by_label $app_name_label=$2 $3
