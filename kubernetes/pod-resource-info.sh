@@ -10,13 +10,15 @@ fi
 
 pod_split_line='----------------------------------------------------------------------------'
 deploy_split_line='================================================================================'
-resource_jsonpath='{.name}{":\n\tlimits:"}{.resources.limits}{"\n\trequests:"}{.resources.requests}{"\n"}'
-pod_title='{"'$pod_split_line'\npod: "}'
+
+jp_resources='{.name}{":\n\tlimits:"}{.resources.limits}{"\n\trequests:"}{.resources.requests}{"\n"}'
+jp_pod_title='{"'$pod_split_line'\npod: "}'
+jp_pod_split_line='{"\n'$pod_split_line'\n"}'
 
 print_pod_resources_by_name() {
   pod_name=$1
 
-  kubectl -n $ns get po $pod_name -ojsonpath="$pod_title"'{.metadata.name}{"\n'$pod_split_line'\n"}{range .spec.containers[*]}'$resource_jsonpath'{end}'
+  kubectl -n $ns get po $pod_name -ojsonpath="$jp_pod_title"'{.metadata.name}'$jp_pod_split_line'{range .spec.containers[*]}'$jp_resources'{end}'
 }
 
 print_pod_resources_by_label() {
@@ -25,9 +27,9 @@ print_pod_resources_by_label() {
 
 
  if [ "$all_flag" == "--all" ]; then
-   kubectl -n $ns get po -l $pod_label -ojsonpath='{range .items[*]}'"$pod_title"'{.metadata.name}{"\n'$pod_split_line'\n"}{range .spec.containers[*]}'$resource_jsonpath'{end}{end}'
+   kubectl -n $ns get po -l $pod_label -ojsonpath='{range .items[*]}'"$jp_pod_title"'{.metadata.name}'$jp_pod_split_line'{range .spec.containers[*]}'$jp_resources'{end}{end}'
  else
-   kubectl -n $ns get po -l $pod_label -ojsonpath="$pod_title"'{.items[0].metadata.name}{"\n'$pod_split_line'\n"}{range .items[0].spec.containers[*]}'$resource_jsonpath'{end}'
+   kubectl -n $ns get po -l $pod_label -ojsonpath="$jp_pod_title"'{.items[0].metadata.name}'$jp_pod_split_line'{range .items[0].spec.containers[*]}'$jp_resources'{end}'
  fi
 }
 
