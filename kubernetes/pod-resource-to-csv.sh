@@ -31,7 +31,7 @@ print_pod_resources_of_workload() {
   workload_label=$2
 
   echo "$workload,replicas,container,request cpu(m),request memory(Mi),limit cpu(m),limit memory(Mi)"
-  print_workload_list $workload $workload_label | xargs -I {} bash -c "./to-cvs.sh -a {}"
+  print_workload_list $workload $workload_label | xargs -I {} bash -c "./$0 -a {}"
 }
 
 print_workload_list() {

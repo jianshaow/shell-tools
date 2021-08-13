@@ -46,7 +46,7 @@ print_pod_resources_of_workload() {
     label_args="-l $workload_label"
   fi
 
-  kubectl -n $ns get $workload --no-headers $label_args -ojsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | xargs -I {} bash -c "echo $deploy_split_line; echo $workload: {}; echo $deploy_split_line; ./pod-resource-info.sh -a {} $all_flag"
+  kubectl -n $ns get $workload --no-headers $label_args -ojsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | xargs -I {} bash -c "echo $deploy_split_line; echo $workload: {}; echo $deploy_split_line; ./$0 -a {} $all_flag"
 }
 
 usage () {
