@@ -8,23 +8,26 @@ fi
 . env.sh
 . pod-common.sh
 
+pod_split_line='--------------------------------------------------------------------------------'
+deploy_split_line='================================================================================'
+resource_jsonpath='|--{.name}{"\n|\tlimits:"}{.resources.limits}{"\n|\trequests:"}{.resources.requests}{"\n"}'
+pod_title='{"'$pod_split_line'\n| pod: "}'
+
 print_pod_resources_by_name() {
   pod_name=$1
 
-  kubectl -n $ns get po $pod_name -ojsonpath='{"---- pod "}{.metadata.name}{" ----\n"}{range .spec.containers[*]}{.name}{"\t\tlimits:"}{.resources.limits}{"\n\t\trequests:"}{.resources.requests}{"\n"}{end}'
+  kubectl -n $ns get po $pod_name -ojsonpath="$pod_title"'{.metadata.name}{"\n'$pod_split_line'\n"}{range .spec.containers[*]}'$resource_jsonpath'{end}'
 }
 
 print_pod_resources_by_label() {
   pod_label=$1
   all_flag=$2
 
-  resource_jsonpath='{.name}{"\t\tlimits:"}{.resources.limits}{"\n\t\t\trequests:"}{.resources.requests}{"\n"}'
-  split_line='--------------------------------------------------------------------------------'
 
  if [ "$all_flag" == "--all" ]; then
-   kubectl -n $ns get po -l $pod_label -ojsonpath='{range .items[*]}{"'$split_line'\npod: "}{.metadata.name}{"\n'$split_line'\n"}{range .spec.containers[*]}'$resource_jsonpath'{end}{end}'
+   kubectl -n $ns get po -l $pod_label -ojsonpath='{range .items[*]}'"$pod_title"'{.metadata.name}{"\n'$pod_split_line'\n"}{range .spec.containers[*]}'$resource_jsonpath'{end}{end}'
  else
-   kubectl -n $ns get po -l $pod_label -ojsonpath='{"'$split_line'\npod: "}{.items[0].metadata.name}{"\n'$split_line'\n"}{range .items[0].spec.containers[*]}'$resource_jsonpath'{end}'
+   kubectl -n $ns get po -l $pod_label -ojsonpath="$pod_title"'{.items[0].metadata.name}{"\n'$pod_split_line'\n"}{range .items[0].spec.containers[*]}'$resource_jsonpath'{end}'
  fi
 }
 
@@ -41,9 +44,7 @@ print_pod_resources_of_workload() {
     label_args="-l $workload_label"
   fi
 
-  split_line='================================================================================'
-
-  kubectl -n $ns get $workload --no-headers $label_args -ojsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | xargs -I {} bash -c "echo $split_line; echo $workload: {}; echo $split_line; ./pod-resource-info.sh -a {} $all_flag"
+  kubectl -n $ns get $workload --no-headers $label_args -ojsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | xargs -I {} bash -c "echo $deploy_split_line; echo ' '$workload: {}; echo $deploy_split_line; ./pod-resource-info.sh -a {} $all_flag"
 }
 
 usage () {
