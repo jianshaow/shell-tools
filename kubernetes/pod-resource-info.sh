@@ -8,10 +8,10 @@ fi
 . env.sh
 . pod-common.sh
 
-pod_split_line='--------------------------------------------------------------------------------'
+pod_split_line='----------------------------------------------------------------------------'
 deploy_split_line='================================================================================'
-resource_jsonpath='|--{.name}{"\n|\tlimits:"}{.resources.limits}{"\n|\trequests:"}{.resources.requests}{"\n"}'
-pod_title='{"'$pod_split_line'\n| pod: "}'
+resource_jsonpath='{.name}{":\n\tlimits:"}{.resources.limits}{"\n\trequests:"}{.resources.requests}{"\n"}'
+pod_title='{"'$pod_split_line'\npod: "}'
 
 print_pod_resources_by_name() {
   pod_name=$1
@@ -44,7 +44,7 @@ print_pod_resources_of_workload() {
     label_args="-l $workload_label"
   fi
 
-  kubectl -n $ns get $workload --no-headers $label_args -ojsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | xargs -I {} bash -c "echo $deploy_split_line; echo ' '$workload: {}; echo $deploy_split_line; ./pod-resource-info.sh -a {} $all_flag"
+  kubectl -n $ns get $workload --no-headers $label_args -ojsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' | xargs -I {} bash -c "echo $deploy_split_line; echo $workload: {}; echo $deploy_split_line; ./pod-resource-info.sh -a {} $all_flag"
 }
 
 usage () {
