@@ -42,7 +42,13 @@ print_workload_list() {
     label_args="-l $workload_label"
   fi
 
-  kubectl -n $ns get $workload --no-headers $label_args -ojsonpath='{range .items[*]}{.metadata.name}{","}{.spec.replicas}{"\n"}{end}'
+  if [ "$workload" == "daemonset" ]; then
+    jp_replicas='{.status.currentNumberScheduled}'
+  else
+    jp_replicas='{.spec.replicas}'
+  fi
+
+  kubectl -n $ns get $workload --no-headers $label_args -ojsonpath='{range .items[*]}{.spec.template.metadata.labels.'${app_name_label//./\\.}'}{","}'$jp_replicas'{"\n"}{end}'
 }
 
 usage () {
