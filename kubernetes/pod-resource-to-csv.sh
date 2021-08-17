@@ -26,6 +26,25 @@ print_pod_resources_by_label() {
   kubectl -n $ns get po -l $pod_label -ojsonpath='{range .items[0].spec.containers[*]}{"'$prefix',"}'$jp_resources'{end}' | awk -F ',' "$cpu_func $memory_func $print_code"
 }
 
+print_pod_resources_by_workload() {
+  workload=$1
+  pod_label=$2
+  prefix=$3
+
+  replica_set=$(kubectl -n $ns get rs -l $pod_label -ojsonpath='{range .items[?(@.metadata.ownerReferences[0].name=="'$workload'")]}{.metadata.name}{end}{"\n"}')
+
+  if [[ "$prefix" =~ "," ]]; then
+    print_code='{ print $1","$2","$3","cpu($4)","memory($5)","cpu($6)","memory($7) }'
+  else
+    print_code='{ print $1","$2","cpu($3)","memory($4)","cpu($5)","memory($6) }'
+  fi
+
+  pod_names=$(kubectl -n $ns get pod -l $pod_label -ojsonpath='{range .items[?(@.metadata.ownerReferences[0].name=="'$replica_set'")]}{.metadata.name}{"\n"}{end}')
+  array=($pod_names)
+
+  kubectl -n $ns get po ${array[0]} -ojsonpath='{range .spec.containers[*]}{"'$prefix',"}'$jp_resources'{end}' | awk -F ',' "$cpu_func $memory_func $print_code"
+}
+
 print_pod_resources_of_workload() {
   workload=$1
   workload_label=$2
@@ -48,7 +67,7 @@ print_workload_list() {
     jp_replicas='{.spec.replicas}'
   fi
 
-  kubectl -n $ns get $workload --no-headers $label_args -ojsonpath='{range .items[*]}{.spec.template.metadata.labels.'${app_name_label//./\\.}'}{","}'$jp_replicas'{"\n"}{end}'
+  kubectl -n $ns get $workload --no-headers $label_args -ojsonpath='{range .items[*]}{.metadata.name}{","}{.spec.template.metadata.labels.'${app_name_label//./\\.}'}{","}'$jp_replicas'{"\n"}{end}'
 }
 
 usage () {
@@ -68,8 +87,11 @@ case $1 in
     print_pod_resources_of_workload daemonset $2
     ;;
   -a)
-    app_label=${2%,*}
-    print_pod_resources_by_label $app_name_label=$app_label $2
+    workload=${2//,/ }
+    array=($workload)
+    app_label=${array[1]}
+    # print_pod_resources_by_label $app_name_label=$app_label ${array[0]},${array[2]}
+    print_pod_resources_by_workload ${array[0]} $app_name_label=$app_label ${array[0]},${array[2]}
     ;;
   -l)
     print_workload_list $2 $3
