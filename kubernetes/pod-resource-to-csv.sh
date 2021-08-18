@@ -55,7 +55,7 @@ print_pod_resources_of_workload() {
   workload_label=$2
 
   echo "$workload_type,replicas,container,request cpu(m),request memory(Mi),limit cpu(m),limit memory(Mi)"
-  print_workload_list $workload_type $workload_label | xargs -I {} bash -c "./$0 -a $workload_type {}"
+  print_workload_list $workload_type "$workload_label" | xargs -I {} bash -c "./$0 -a $workload_type {}"
 }
 
 print_workload_list() {
@@ -85,13 +85,13 @@ usage () {
 
 case $1 in
   -d)
-    print_pod_resources_of_workload deployment $2
+    print_pod_resources_of_workload deployment "$2"
     ;;
   -s)
-    print_pod_resources_of_workload statefulset $2
+    print_pod_resources_of_workload statefulset "$2"
     ;;
   --daemonset)
-    print_pod_resources_of_workload daemonset $2
+    print_pod_resources_of_workload daemonset "$2"
     ;;
   -a)
     workload_type=$2
@@ -104,7 +104,7 @@ case $1 in
     print_pod_resources_by_workload $workload_type $workload_name $app_name_label=$app_label $workload_name,$replicas
     ;;
   -l)
-    print_workload_list $2 $3
+    print_workload_list $2 "$3"
     ;;
   *)
     usage
