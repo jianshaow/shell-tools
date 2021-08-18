@@ -31,7 +31,7 @@ print_pod_resources_by_workload() {
   pod_label=$2
   prefix=$3
 
-  replica_set=$(kubectl -n $ns get rs -l $pod_label -ojsonpath='{range .items[?(@.metadata.ownerReferences[0].name=="'$workload'")]}{.metadata.name}{end}{"\n"}')
+  replica_set=$(kubectl -n $ns get rs -l $pod_label -ojsonpath='{range .items[?(@.metadata.ownerReferences[0].name=="'$workload'")]}{.metadata.name}{" "}{.status.replicas}{"\n"}{end}' | awk '{ if ($2 != 0) print $1 }')
 
   if [[ "$prefix" =~ "," ]]; then
     print_code='{ print $1","$2","$3","cpu($4)","memory($5)","cpu($6)","memory($7) }'
