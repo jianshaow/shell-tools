@@ -59,20 +59,22 @@ print_pod_resources_of_workload() {
 }
 
 print_workload_list() {
-  workload=$1
+  workload_type=$1
   workload_label=$2
 
-  if [ "$workload_label" != "" ]; then
-    label_args="-l $workload_label"
-  fi
-
-  if [ "$workload" == "daemonset" ]; then
+  if [ "$workload_type" == "daemonset" ]; then
     jp_replicas='{.status.currentNumberScheduled}'
   else
     jp_replicas='{.spec.replicas}'
   fi
 
-  kubectl -n $ns get $workload --no-headers $label_args -ojsonpath='{range .items[*]}{.metadata.name}{","}{.spec.template.metadata.labels.'${app_name_label//./\\.}'}{","}'$jp_replicas'{"\n"}{end}'
+  jp_app_label='{.spec.template.metadata.labels.'${app_name_label//./\\.}'}'
+
+  if [ "$workload_label" != "" ]; then
+    kubectl -n $ns get $workload_type --no-headers -l "$workload_label" -ojsonpath='{range .items[*]}{.metadata.name}{","}'$jp_app_label'{","}'$jp_replicas'{"\n"}{end}'
+  else
+    kubectl -n $ns get $workload_type --no-headers -ojsonpath='{range .items[*]}{.metadata.name}{","}'$jp_app_label'{","}'$jp_replicas'{"\n"}{end}'
+  fi
 }
 
 usage () {
