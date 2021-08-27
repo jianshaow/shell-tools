@@ -17,7 +17,7 @@ print_pod_resources_by_label() {
   pod_label=$1
   prefix=$2
 
-  print_code='{ if(last==$1) { printf "," } else {last=$1; printf $1","} print $2","cpu($3)","memory($4)","cpu($5)","memory($6) }'
+  print_code='{ if(last==$1) { gsub(/[^,]/, "", $1); printf $1"," } else {last=$1; printf $1","} print $2","cpu($3)","memory($4)","cpu($5)","memory($6) }'
 
   kubectl -n $ns get po -l $pod_label -ojsonpath='{range .items[0].spec.containers[*]}{"'$prefix'|"}'$jp_resources'{end}' | awk -F "|" "$cpu_func $memory_func $print_code"
 }
@@ -34,7 +34,7 @@ print_pod_resources_by_workload() {
     owner=$workload_name
   fi
 
-  print_code='{ if(last==$1) { printf "," } else {last=$1; printf $1","} print $2","cpu($3)","memory($4)","cpu($5)","memory($6) }'
+  print_code='{ if(last==$1) { gsub(/[^,]/, "", $1); printf $1"," } else {last=$1; printf $1","} print $2","cpu($3)","memory($4)","cpu($5)","memory($6) }'
 
   pod_names=$(kubectl -n $ns get pod -l $pod_label -ojsonpath='{range .items[?(@.metadata.ownerReferences[0].name=="'$owner'")]}{.metadata.name}{"\n"}{end}')
   array=($pod_names)
