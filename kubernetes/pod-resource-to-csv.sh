@@ -40,7 +40,6 @@ print_pod_resources_by_workload() {
   fi
 
   awk_print_code='{ if (skipped==1) { printf ",'$replicas'," } else { skipped=1; printf "'$workload_name','$replicas',"} print $1","cpu($2)","memory($3)","cpu($4)","memory($5) }'
-  echo $awk_print_code
 
   pod_names=$(kubectl -n $ns get pod -l $pod_label -ojsonpath='{range .items[?(@.metadata.ownerReferences[0].name=="'$owner'")]}{.metadata.name}{"\n"}{end}')
   array=($pod_names)
