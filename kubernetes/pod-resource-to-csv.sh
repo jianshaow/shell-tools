@@ -23,10 +23,15 @@ print_pod_resources_by_label() {
 }
 
 print_pod_resources_by_workload() {
-  workload_type=$1
-  workload_name=$2
-  pod_label=$3
-  prefix=$4
+  workload=${1//,/ }
+  array=($workload)
+  workload_type=${array[0]}
+  workload_name=${array[1]}
+  app_label=${array[2]}
+  replicas=${array[3]}
+ 
+  pod_label=$app_name_label=$app_label
+  prefix=$workload_name,$replicas
 
   if [ "$workload_type" == "deployment" ]; then
     owner=$(kubectl -n $ns get rs -l $pod_label -ojsonpath='{range .items[?(@.metadata.ownerReferences[0].name=="'$workload_name'")]}{.metadata.name}{" "}{.status.replicas}{"\n"}{end}' | awk '{ if ($2 != 0) print $1 }')
@@ -34,12 +39,13 @@ print_pod_resources_by_workload() {
     owner=$workload_name
   fi
 
-  awk_print_code='{ if(last==$1) { printf ","'${prefix#*,}'"," } else {last=$1; printf $1","} print $2","cpu($3)","memory($4)","cpu($5)","memory($6) }'
+  awk_print_code='{ if (skipped==1) { printf ",'$replicas'," } else { skipped=1; printf "'$workload_name','$replicas',"} print $1","cpu($2)","memory($3)","cpu($4)","memory($5) }'
+  echo $awk_print_code
 
   pod_names=$(kubectl -n $ns get pod -l $pod_label -ojsonpath='{range .items[?(@.metadata.ownerReferences[0].name=="'$owner'")]}{.metadata.name}{"\n"}{end}')
   array=($pod_names)
 
-  kubectl -n $ns get po ${array[0]} -ojsonpath='{range .spec.containers[*]}{"'$prefix'|"}'$jp_resources'{end}' | awk -F "|" "$awk_cpu_func $awk_memory_func $awk_print_code"
+  kubectl -n $ns get po ${array[0]} -ojsonpath='{range .spec.containers[*]}'$jp_resources'{end}' | awk -F "|" "$awk_cpu_func $awk_memory_func $awk_print_code"
 }
 
 print_pod_resources_of_workload() {
@@ -47,7 +53,7 @@ print_pod_resources_of_workload() {
   workload_label=$2
 
   echo "$workload_type,replicas,container,request cpu(m),request memory(Mi),limit cpu(m),limit memory(Mi)"
-  print_workload_list $workload_type "$workload_label" | xargs -I {} bash -c "./$0 -a $workload_type {}"
+  print_workload_list $workload_type "$workload_label" | xargs -I {} bash -c "./$0 -a {}"
 }
 
 print_workload_list() {
@@ -63,9 +69,9 @@ print_workload_list() {
   jp_app_label='{.spec.template.metadata.labels.'${app_name_label//./\\.}'}'
 
   if [ "$workload_label" != "" ]; then
-    kubectl -n $ns get $workload_type --no-headers -l "$workload_label" -ojsonpath='{range .items[*]}{.metadata.name}{","}'$jp_app_label'{","}'$jp_replicas'{"\n"}{end}'
+    kubectl -n $ns get $workload_type --no-headers -l "$workload_label" -ojsonpath='{range .items[*]}{"'$workload_type',"}{.metadata.name}{","}'$jp_app_label'{","}'$jp_replicas'{"\n"}{end}'
   else
-    kubectl -n $ns get $workload_type --no-headers -ojsonpath='{range .items[*]}{.metadata.name}{","}'$jp_app_label'{","}'$jp_replicas'{"\n"}{end}'
+    kubectl -n $ns get $workload_type --no-headers -ojsonpath='{range .items[*]}{"'$workload_type',"}{.metadata.name}{","}'$jp_app_label'{","}'$jp_replicas'{"\n"}{end}'
   fi
 }
 
@@ -86,14 +92,7 @@ case $1 in
     print_pod_resources_of_workload daemonset "$2"
     ;;
   -a)
-    workload_type=$2
-    workload=${3//,/ }
-    array=($workload)
-    workload_name=${array[0]}
-    app_label=${array[1]}
-    replicas=${array[2]}
-  
-    print_pod_resources_by_workload $workload_type $workload_name $app_name_label=$app_label $workload_name,$replicas
+    print_pod_resources_by_workload $2
     ;;
   -w)
     print_workload_list $2 "$3"
