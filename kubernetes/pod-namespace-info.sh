@@ -32,13 +32,13 @@ print_container_namespace_info() {
 
   case $verbose_level in
     1)
-      column="pidns,user,group,ppid,pid,%cpu,%mem,comm"
+      column="pidns,user,group,pid,ppid,%cpu,%mem,comm"
       ;;
     2)
-      column="pidns,user,group,ppid,pid,%cpu,%mem,start_time,args"
+      column="pidns,user,group,pid,ppid,%cpu,%mem,start_time,args"
       ;;
     *)
-      column="pidns,ppid,pid,comm"
+      column="pidns,pid,ppid,comm"
       ;;
   esac
 
