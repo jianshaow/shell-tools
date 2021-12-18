@@ -12,7 +12,7 @@ profiler() {
   pod_name=$1
   container_name=$2
   pod_exec $pod_name $container_name 'curl https://arthas.aliyun.com/arthas-boot.jar -o /tmp/arthas-boot.jar'
-  process_id = $(pod_exec $pod_name $container_name 'jps'|grep -v Jps|awk '{print $1}'\"")
+  process_id = $(pod_exec $pod_name $container_name 'jps'|grep -v Jps|awk '{print $1}')
   pod_exec $pod_name $container_name "java -jar /tmp/arthas-boot.jar $process_id -c 'profiler list'"
 }
 
