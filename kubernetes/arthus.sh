@@ -21,7 +21,7 @@ profiler() {
   pod_exec $pod_name $container_name "java -jar /tmp/arthas-boot.jar $process_id -c 'profiler status'"
 }
 
-usage () {
+usage() {
   echo "Usage: `basename $0` [profiler <pod> <container>]"
   echo
   return 2
@@ -32,7 +32,7 @@ case $1 in
     profiler $2 $3
     ;;
   download)
-    download
+    download $2 $3
     ;;
   *)
     usage

@@ -46,6 +46,5 @@ pod_exec() {
   pod_name=$1
   container_name=$2
   cmd=$3
-  result=$(kubectl -n $ns exec $pod_name -c $container_name -- $cmd)
-  echo "$result"
+  kubectl -n $ns exec $pod_name -c $container_name -- $cmd
 }
