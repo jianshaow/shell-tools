@@ -19,7 +19,7 @@ exec() {
   container_name=$2
   cmd=$3
   process_id=$(pod_exec $pod_name $container_name 'jps'|grep -v Jps|awk '{print $1}')
-  kubectl -n $ns exec $pod_name $container_name -- java -jar /tmp/arthas-boot.jar $process_id -c $cmd
+  kubectl -n $ns exec $pod_name $container_name -- java -jar /tmp/arthas-boot.jar $process_id -c "$cmd"
 }
 
 usage() {
@@ -30,7 +30,7 @@ usage() {
 
 case $1 in
   exec)
-    exec $2 $3 $4
+    exec $2 $3 "$4"
     ;;
   download)
     download $2 $3
