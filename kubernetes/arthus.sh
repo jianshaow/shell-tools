@@ -22,6 +22,12 @@ exec() {
   kubectl -n $ns exec $pod_name $container_name -- java -jar /tmp/arthas-boot.jar $process_id -c "$cmd"
 }
 
+get_result() {
+  pod_name=$1
+  container_name=$2
+  kubectl cp -c $container_name $ns/$pod_name:arthas-output arthas-output
+}
+
 usage() {
   echo "Usage: `basename $0` [download|exec <pod> <container> [<cmd>]]"
   echo
@@ -31,6 +37,9 @@ usage() {
 case $1 in
   exec)
     exec $2 $3 "$4"
+    ;;
+  get_result)
+    get_result $2 $3
     ;;
   download)
     download $2 $3
