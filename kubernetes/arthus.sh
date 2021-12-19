@@ -17,19 +17,20 @@ download() {
 profiler() {
   pod_name=$1
   container_name=$2
+  cmd=$3
   process_id=$(pod_exec $pod_name $container_name 'jps'|grep -v Jps|awk '{print $1}')
-  pod_exec $pod_name $container_name "java -jar /tmp/arthas-boot.jar $process_id -c 'profiler status'"
+  kubectl -n $ns exec $pod_name $container_name -- java -jar /tmp/arthas-boot.jar $process_id -c $cmd
 }
 
 usage() {
-  echo "Usage: `basename $0` [profiler <pod> <container>]"
+  echo "Usage: `basename $0` [download|exec <pod> <container> [<cmd>]]"
   echo
   return 2
 }
 
 case $1 in
-  profiler)
-    profiler $2 $3
+  exec)
+    $2 $3 $4
     ;;
   download)
     download $2 $3
