@@ -8,7 +8,7 @@ fi
 . env.sh
 . pod-common.sh
 
-download() {
+install() {
   pod_name=$1
   container_name=$2
   pod_exec $pod_name $container_name 'curl https://arthas.aliyun.com/arthas-boot.jar -o /tmp/arthas-boot.jar'
@@ -41,8 +41,8 @@ case $1 in
   get_result)
     get_result $2 $3
     ;;
-  download)
-    download $2 $3
+  install)
+    install $2 $3
     ;;
   *)
     usage
