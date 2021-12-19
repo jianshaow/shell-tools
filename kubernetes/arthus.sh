@@ -14,7 +14,7 @@ download() {
   pod_exec $pod_name $container_name 'curl https://arthas.aliyun.com/arthas-boot.jar -o /tmp/arthas-boot.jar'
 }
 
-profiler() {
+exec() {
   pod_name=$1
   container_name=$2
   cmd=$3
@@ -30,7 +30,7 @@ usage() {
 
 case $1 in
   exec)
-    $2 $3 $4
+    exec $2 $3 $4
     ;;
   download)
     download $2 $3
