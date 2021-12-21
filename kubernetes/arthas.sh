@@ -22,6 +22,14 @@ exec() {
   kubectl -n $ns exec $pod_name $container_name -- java -jar /tmp/arthas-boot.jar $process_id -c "$cmd"
 }
 
+cli() {
+  pod_name=$1
+  container_name=$2
+  cmd=$3
+  process_id=$(pod_exec $pod_name $container_name 'jps'|grep -v Jps|awk '{print $1}')
+  kubectl -n $ns exec -ti $pod_name $container_name -- java -jar /tmp/arthas-boot.jar $process_id
+}
+
 get_result() {
   pod_name=$1
   container_name=$2
@@ -37,6 +45,9 @@ usage() {
 case $1 in
   exec)
     exec $2 $3 "$4"
+    ;;
+  cli)
+    cli $2 $3
     ;;
   get_result)
     get_result $2 $3
