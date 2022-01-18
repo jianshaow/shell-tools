@@ -61,11 +61,17 @@ print_workload_list() {
 
   if [ "$workload_type" == "daemonset" ]; then
     jp_replicas='{.status.currentNumberScheduled}'
+  elif [ "$workload_type" == "RedisCluster" ]; then
+    jp_replicas='{.status.Cluster.nbRedisNodesRunning}'
   else
     jp_replicas='{.spec.replicas}'
   fi
 
-  jp_app_label='{.spec.template.metadata.labels.'${app_name_label//./\\.}'}'
+  if [ "$workload_type" == "RedisCluster" ]; then
+    jp_app_label='{.spec.podTemplate.metadata.labels.'${app_name_label//./\\.}'}'
+  else
+    jp_app_label='{.spec.template.metadata.labels.'${app_name_label//./\\.}'}'
+  fi
 
   if [ "$workload_label" != "" ]; then
     kubectl -n $ns get $workload_type --no-headers -l "$workload_label" -ojsonpath='{range .items[*]}{"'$workload_type',"}{.metadata.name}{","}'$jp_app_label'{","}'$jp_replicas'{"\n"}{end}'
@@ -89,6 +95,9 @@ case $1 in
     ;;
   --daemonset)
     print_pod_resources_of_workload daemonset "$2"
+    ;;
+  --crd)
+    print_pod_resources_of_workload $2 "$3"
     ;;
   -a)
     print_pod_resources_by_workload $2
