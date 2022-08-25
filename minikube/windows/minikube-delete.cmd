@@ -6,9 +6,9 @@ set HOMEPATH=\Users\ejiowuu
 %HOMEDRIVE%
 cd %HOMEPATH%
 
-call minikube-profile.cmd %1 %2
+CALL minikube-profile.cmd %*
 
-minikube delete %1 %2
+minikube delete %*
 
 set MINIKUBE_PROFILE=
 prompt
