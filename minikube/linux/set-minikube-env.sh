@@ -11,11 +11,7 @@ kubectl config use-context $CURRENT_CONTEXT
 kubectl config set-credentials $CURRENT_CONTEXT --client-certificate=$HOME/.minikube/profiles/$CURRENT_CONTEXT/client.crt --client-key=$HOME/.minikube/profiles/$CURRENT_CONTEXT/client.key
 kubectl config view
 
-#echo ========================= Set Docker Env =========================
+echo ========================= Set Docker Env =========================
 
-#export DOCKER_HOST=$MINIKUBE_IP:2376
-#export DOCKER_CERT_PATH=$HOME/.minikube/certs
-#export DOCKER_TLS_VERIFY=1
-
-#env | grep DOCKER
-
+export DOCKER_HOST=ssh://docker@$MINIKUBE_IP
+env | grep DOCKER
