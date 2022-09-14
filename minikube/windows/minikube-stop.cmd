@@ -1,10 +1,6 @@
 @echo off
 
-set HOMEDRIVE=F:
-set HOMEPATH=\Users\ejiowuu
-
-%HOMEDRIVE%
-cd %HOMEPATH%
+CALL goto-home.cmd
 
 CALL minikube-profile.cmd %*
 
