@@ -1,6 +1,12 @@
-CURRENT_CONTEXT=$(kubectl --kubeconfig /mnt/f/Users/ejiowuu/.kube/config config current-context)
+. win-minikube-env.sh
+
+if [ ! -f "$HOME/.minikube" ]; then
+  ln -s $WIN_HOME/.minikube $HOME/.minikube
+fi
+
+CURRENT_CONTEXT=$(kubectl --kubeconfig "$WIN_HOME/.kube/config" config current-context)
 URL_JSON_PATH="{.clusters[?(@.name == \"$CURRENT_CONTEXT\")].cluster.server}"
-MINIKUBE_URL=$(kubectl --kubeconfig /mnt/f/Users/ejiowuu/.kube/config config view -ojsonpath="$URL_JSON_PATH")
+MINIKUBE_URL=$(kubectl --kubeconfig "$WIN_HOME/.kube/config" config view -ojsonpath="$URL_JSON_PATH")
 MINIKUBE_IP=$(echo $MINIKUBE_URL | awk -F[/:] '{print $4}')
 
 echo ========================= Set Kube Config =========================
