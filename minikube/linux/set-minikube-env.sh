@@ -1,6 +1,6 @@
 . win-minikube-env.sh
 
-if [ ! -f "$HOME/.minikube" ]; then
+if [ ! -e "$HOME/.minikube" ]; then
   ln -s $WIN_HOME/.minikube $HOME/.minikube
 fi
 
