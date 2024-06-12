@@ -1,0 +1,44 @@
+#!/bin/bash
+
+start() {
+    name=$1
+    cmd=$2
+
+    state=$(docker ps -af name=$name --format json|jq -r '.State')
+
+    if [ "$state" == "exited" ]; then
+        echo "$name starting ..."
+        docker start $name
+        echo 'done'
+        exit 0
+    elif [ "$state" == "running" ]; then
+        echo "an $name instance is running..."
+        exit 0
+    fi
+
+    echo "$name starting ..."
+    docker run -v /tmp/.X11-unix:/tmp/.X11-unix -v /mnt/wslg:/mnt/wslg \
+               -e DISPLAY -e WAYLAND_DISPLAY -e XDG_RUNTIME_DIR -e PULSE_SERVER \
+               -v $HOME:/home/devel --name $name jianshao/java-dev:21 $cmd
+    echo 'done'
+}
+
+stop() {
+    name=$1
+    docker stop $name
+}
+
+remove() {
+    name=$1
+    docker rm $name
+}
+
+status() {
+    name=$1
+    docker ps -af name=$name --format json|jq -r '.State'
+}
+
+usage () {
+  echo "Usage: `basename $0` [start|stop|status]"
+  return 2
+}
