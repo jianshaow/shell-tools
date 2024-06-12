@@ -4,7 +4,7 @@
 
 case $1 in
   start)
-    start eclipse /home/devel/ide/eclipse/eclipse
+    start eclipse /home/devel/java/eclipse/eclipse
     ;;
   stop)
     stop eclipse
@@ -16,7 +16,7 @@ case $1 in
     status eclipse
     ;;
   "")
-    start eclipse /home/devel/ide/eclipse/eclipse
+    start eclipse /home/devel/java/eclipse/eclipse
     ;;
   *)
     usage

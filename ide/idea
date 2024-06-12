@@ -4,7 +4,7 @@
 
 case $1 in
   start)
-    start idea /home/devel/ide/idea/bin/idea.sh
+    start idea /home/devel/java/idea/bin/idea.sh
     ;;
   stop)
     stop idea
@@ -16,7 +16,7 @@ case $1 in
     status idea
     ;;
   "")
-    start idea /home/devel/ide/idea/bin/idea.sh
+    start idea /home/devel/java/idea/bin/idea.sh
     ;;
   *)
     usage
