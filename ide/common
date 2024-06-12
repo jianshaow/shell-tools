@@ -19,7 +19,7 @@ start() {
     echo "$name starting ..."
     docker run -v /tmp/.X11-unix:/tmp/.X11-unix -v /mnt/wslg:/mnt/wslg \
                -e DISPLAY -e WAYLAND_DISPLAY -e XDG_RUNTIME_DIR -e PULSE_SERVER \
-               -v $HOME:/home/devel --name $name jianshao/java-dev:21 $cmd
+               -v $HOME:/home/devel --name $name -d jianshao/java-dev:21 $cmd
     echo 'done'
 }
 
