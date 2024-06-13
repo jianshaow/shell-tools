@@ -12,6 +12,9 @@ case $1 in
   remove)
     remove eclipse
     ;;
+  shell)
+    shell eclipse
+    ;;
   status)
     status eclipse
     ;;

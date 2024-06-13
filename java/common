@@ -33,6 +33,11 @@ remove() {
     docker rm $name
 }
 
+shell() {
+    name=$1
+    docker exec -it $name bash
+}
+
 status() {
     name=$1
     docker ps -af name=$name --format json|jq -r '.State'

@@ -12,6 +12,9 @@ case $1 in
   remove)
     remove idea
     ;;
+  shell)
+    shell idea
+    ;;
   status)
     status idea
     ;;
