@@ -19,6 +19,7 @@ start() {
     echo "$name starting ..."
     docker run --add-host=host.docker.internal:host-gateway \
                -v /tmp/.X11-unix:/tmp/.X11-unix -v /mnt/wslg:/mnt/wslg \
+               -v /run/user/1000:/run/user/1000 -v /etc/localtime:/etc/localtime:ro \
                -e DISPLAY -e WAYLAND_DISPLAY -e XDG_RUNTIME_DIR -e PULSE_SERVER \
                -v $HOME:/home/devel --name $name -d jianshao/java-dev:21 $cmd
     echo 'done'
