@@ -22,6 +22,9 @@ ensuredir() {
     if [ ! -d "$HOME/.p2" ]; then
         mkdir $HOME/.p2
     fi
+    if [ ! -d "$HOME/.jbr" ]; then
+        mkdir $HOME/.jbr
+    fi
     if [ ! -d "$HOME/.eclipse" ]; then
         mkdir $HOME/.eclipse
     fi
@@ -53,9 +56,10 @@ start() {
                -v $HOME/.local:/home/devel/.local -v $HOME/.ssh:/home/devel/.ssh \
                -v $HOME/.java:/home/devel/.java -v $HOME/.m2:/home/devel/.m2 \
                -v $HOME/.p2:/home/devel/.p2 -v $HOME/.eclipse:/home/devel/.eclipse \
+               -v $HOME/.jbr:/home/devel/.jbr -v $HOME/workspace:/home/devel/workspace \
                -v $HOME/github:/home/devel/github -v $HOME/gitlab:/home/devel/gitlab \
-               -v $HOME/gerrit:/home/devel/gerrit -v $HOME/workspace:/home/devel/workspace \
-               -v $HOME/java:/home/devel/java --name $name -d jianshao/java-dev:21 $cmd
+               -v $HOME/gerrit:/home/devel/gerrit -v $HOME/java:/home/devel/java \
+               --name $name -d jianshao/java-dev:21 $cmd
     echo 'done'
 }
 
