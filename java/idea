@@ -18,6 +18,9 @@ case $1 in
   status)
     status idea
     ;;
+  logs)
+    logs idea
+    ;;
   "")
     start idea /home/devel/java/idea/bin/idea.sh
     ;;

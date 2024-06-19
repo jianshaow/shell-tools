@@ -18,6 +18,9 @@ case $1 in
   status)
     status eclipse
     ;;
+  logs)
+    logs eclipse
+    ;;
   "")
     start eclipse /home/devel/java/eclipse/eclipse
     ;;

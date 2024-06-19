@@ -1,5 +1,32 @@
 #!/bin/bash
 
+ensuredir() {
+    if [ ! -d "$HOME/.config" ]; then
+        mkdir $HOME/.config
+    fi
+    if [ ! -d "$HOME/.cache" ]; then
+        mkdir $HOME/.cache
+    fi
+    if [ ! -d "$HOME/.ssh" ]; then
+        mkdir $HOME/.ssh
+    fi
+    if [ ! -d "$HOME/.local" ]; then
+        mkdir $HOME/.local
+    fi
+    if [ ! -d "$HOME/.java" ]; then
+        mkdir $HOME/.java
+    fi
+    if [ ! -d "$HOME/.m2" ]; then
+        mkdir $HOME/.m2
+    fi
+    if [ ! -d "$HOME/.p2" ]; then
+        mkdir $HOME/.p2
+    fi
+    if [ ! -d "$HOME/.eclipse" ]; then
+        mkdir $HOME/.eclipse
+    fi
+}
+
 start() {
     name=$1
     cmd=$2
@@ -16,12 +43,19 @@ start() {
         exit 0
     fi
 
+    ensuredir
     echo "$name starting ..."
     docker run --add-host=host.docker.internal:host-gateway \
                -v /tmp/.X11-unix:/tmp/.X11-unix -v /mnt/wslg:/mnt/wslg \
                -v /run/user/1000:/run/user/1000 -v /etc/localtime:/etc/localtime:ro \
                -e DISPLAY -e WAYLAND_DISPLAY -e XDG_RUNTIME_DIR -e PULSE_SERVER \
-               -v $HOME:/home/devel --name $name -d jianshao/java-dev:21 $cmd
+               -v $HOME/.config:/home/devel/.config -v $HOME/.cache:/home/devel/.cache \
+               -v $HOME/.local:/home/devel/.local -v $HOME/.ssh:/home/devel/.ssh \
+               -v $HOME/.java:/home/devel/.java -v $HOME/.m2:/home/devel/.m2 \
+               -v $HOME/.p2:/home/devel/.p2 -v $HOME/.eclipse:/home/devel/.eclipse \
+               -v $HOME/github:/home/devel/github -v $HOME/gitlab:/home/devel/gitlab \
+               -v $HOME/gerrit:/home/devel/gerrit -v $HOME/workspace:/home/devel/workspace \
+               -v $HOME/java:/home/devel/java --name $name -d jianshao/java-dev:21 $cmd
     echo 'done'
 }
 
@@ -42,7 +76,12 @@ shell() {
 
 status() {
     name=$1
-    docker ps -af name=$name --format json|jq -r '.State'
+    docker ps -af name=$name --format json | jq -r '.State'
+}
+
+logs() {
+    name=$1
+    docker logs $name 
 }
 
 usage () {
