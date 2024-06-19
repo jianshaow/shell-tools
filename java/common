@@ -81,7 +81,7 @@ status() {
 
 logs() {
     name=$1
-    docker logs $name 
+    docker logs -f $name
 }
 
 usage () {
