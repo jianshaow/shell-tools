@@ -56,9 +56,9 @@ start() {
                -v $HOME/.local:/home/devel/.local -v $HOME/.ssh:/home/devel/.ssh \
                -v $HOME/.java:/home/devel/.java -v $HOME/.m2:/home/devel/.m2 \
                -v $HOME/.p2:/home/devel/.p2 -v $HOME/.eclipse:/home/devel/.eclipse \
-               -v $HOME/.jbr:/home/devel/.jbr -v $HOME/workspace:/home/devel/workspace \
+               -v $HOME/.jbr:/home/devel/.jbr  -v $HOME/.codeium:/home/devel/.codeium \
                -v $HOME/source:/home/devel/source -v $HOME/java:/home/devel/java \
-               --name $name -d jianshao/java-dev:21 $cmd
+               -v $HOME/workspace:/home/devel/workspace --name $name -d jianshao/java-dev:21 $cmd
     echo 'done'
 }
 
