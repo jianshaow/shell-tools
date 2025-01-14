@@ -28,6 +28,9 @@ ensuredir() {
     if [ ! -d "$HOME/.eclipse" ]; then
         mkdir $HOME/.eclipse
     fi
+    if [ ! -d "$HOME/.codeium" ]; then
+        mkdir $HOME/.codeium
+    fi
 }
 
 start() {
