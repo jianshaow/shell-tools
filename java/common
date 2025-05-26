@@ -51,17 +51,18 @@ start() {
 
     ensuredir
     echo "$name starting ..."
+    homedir=/home/ubuntu
     docker run --add-host=host.docker.internal:host-gateway \
                -v /tmp/.X11-unix:/tmp/.X11-unix -v /mnt/wslg:/mnt/wslg \
                -v /run/user/1000:/run/user/1000 -v /etc/localtime:/etc/localtime:ro \
                -e DISPLAY -e WAYLAND_DISPLAY -e XDG_RUNTIME_DIR -e PULSE_SERVER \
-               -v $HOME/.config:/home/devel/.config -v $HOME/.cache:/home/devel/.cache \
-               -v $HOME/.local:/home/devel/.local -v $HOME/.ssh:/home/devel/.ssh \
-               -v $HOME/.java:/home/devel/.java -v $HOME/.m2:/home/devel/.m2 \
-               -v $HOME/.p2:/home/devel/.p2 -v $HOME/.eclipse:/home/devel/.eclipse \
-               -v $HOME/.jbr:/home/devel/.jbr  -v $HOME/.codeium:/home/devel/.codeium \
-               -v $HOME/source:/home/devel/source -v $HOME/java:/home/devel/java \
-               -v $HOME/workspace:/home/devel/workspace --name $name -d jianshao/java-dev:21 $cmd
+               -v $HOME/.config:$homedir/.config -v $HOME/.cache:$homedir/.cache \
+               -v $HOME/.local:$homedir/.local -v $HOME/.ssh:$homedir/.ssh \
+               -v $HOME/.java:$homedir/.java -v $HOME/.m2:$homedir/.m2 \
+               -v $HOME/.p2:$homedir/.p2 -v $HOME/.eclipse:$homedir/.eclipse \
+               -v $HOME/.jbr:$homedir/.jbr  -v $HOME/.codeium:$homedir/.codeium \
+               -v $HOME/source:$homedir/source -v $HOME/java:$homedir/java \
+               -v $HOME/workspace:$homedir/workspace --name $name -d jianshao/java-dev:21 $cmd
     echo 'done'
 }
 
