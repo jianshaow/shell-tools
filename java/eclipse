@@ -4,7 +4,7 @@
 
 case $1 in
   start)
-    start eclipse /home/devel/java/eclipse/eclipse
+    start eclipse $homedir/java/eclipse/eclipse
     ;;
   stop)
     stop eclipse
@@ -22,7 +22,7 @@ case $1 in
     logs eclipse
     ;;
   "")
-    start eclipse /home/devel/java/eclipse/eclipse
+    start eclipse $homedir/java/eclipse/eclipse
     ;;
   *)
     usage
