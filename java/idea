@@ -4,7 +4,7 @@
 
 case $1 in
   start)
-    start idea $homedir/java/idea/bin/idea.sh
+    start idea $homedir/java/idea/bin/idea
     ;;
   stop)
     stop idea
@@ -22,7 +22,7 @@ case $1 in
     logs idea
     ;;
   "")
-    start idea $homedir/java/idea/bin/idea.sh
+    start idea $homedir/java/idea/bin/idea
     ;;
   *)
     usage
