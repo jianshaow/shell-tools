@@ -6,6 +6,9 @@ case $1 in
   start)
     start idea $homedir/java/idea/bin/idea
     ;;
+  cmd)
+    cmd idea $2
+    ;;
   stop)
     stop idea
     ;;
