@@ -12,7 +12,7 @@ common_args="--add-host host.docker.internal:host-gateway \
             -v $HOME/.p2:$homedir/.p2 -v $HOME/.eclipse:$homedir/.eclipse \
             -v $HOME/.jbr:$homedir/.jbr  -v $HOME/.codeium:$homedir/.codeium \
             -v $HOME/source:$homedir/source -v $HOME/java:$homedir/java \
-            -v $HOME/workspace:$homedir/workspace" -v $HOME/.gitconfig:$homedir/.gitconfig
+            -v $HOME/workspace:$homedir/workspace -v $HOME/.gitconfig:$homedir/.gitconfig"
 
 ensuredir() {
     if [ ! -d "$HOME/.config" ]; then
