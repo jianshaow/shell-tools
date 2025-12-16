@@ -2,10 +2,15 @@
 
 homedir=/home/ubuntu
 
+if [ -f "env.sh" ]; then
+    . env.sh
+fi
+
 common_args="--add-host host.docker.internal:host-gateway \
             -v /tmp/.X11-unix:/tmp/.X11-unix -v /mnt/wslg:/mnt/wslg \
             -v /run/user/1000:/run/user/1000 -v /etc/localtime:/etc/localtime:ro \
             -e DISPLAY -e WAYLAND_DISPLAY -e XDG_RUNTIME_DIR -e PULSE_SERVER \
+            -e HTTPS_PROXY -e HTTP_PROXY -e NO_PROXY \
             -v $HOME/.config:$homedir/.config -v $HOME/.cache:$homedir/.cache \
             -v $HOME/.local:$homedir/.local -v $HOME/.ssh:$homedir/.ssh \
             -v $HOME/.java:$homedir/.java -v $HOME/.m2:$homedir/.m2 \
