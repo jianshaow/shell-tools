@@ -1,9 +1,11 @@
 #!/bin/bash
 
+script_dir=$(dirname $0)
+
 homedir=/home/ubuntu
 
-if [ -f "env.sh" ]; then
-    . env.sh
+if [ -f "$script_dir/env.sh" ]; then
+    . "$script_dir/env.sh"
 fi
 
 common_args="--add-host host.docker.internal:host-gateway \
