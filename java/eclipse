@@ -6,6 +6,9 @@ case $1 in
   start)
     start eclipse $homedir/java/eclipse/eclipse
     ;;
+  cmd)
+    cmd idea $2
+    ;;
   stop)
     stop eclipse
     ;;
