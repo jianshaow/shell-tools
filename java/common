@@ -20,7 +20,7 @@ common_args="--add-host host.docker.internal:host-gateway \
             -v $HOME/.jbr:$homedir/.jbr  -v $HOME/.cloudflared:$homedir/.cloudflared \
             -v $HOME/source:$homedir/source -v $HOME/java:$homedir/java \
             -v $HOME/workspace:$homedir/workspace -v $HOME/.gitconfig:$homedir/.gitconfig \
-            -v $HOME/.m2/repository/com/sun/tools/1.4.2/tools-1.4.2.jar:/usr/lib/jvm/lib/tools.jar"
+            $DOCKER_EXTRA_ARGS"
 
 ensuredir() {
     if [ ! -d "$HOME/.config" ]; then
@@ -96,6 +96,7 @@ cmd() {
     fi
 
     ensuredir
+    echo $common_args
     docker run $common_args --name $name --rm -it jianshao/java-dev:21 $cmd
 }
 
