@@ -96,7 +96,6 @@ cmd() {
     fi
 
     ensuredir
-    echo $common_args
     docker run $common_args --name $name --rm -it jianshao/java-dev:21 $cmd
 }
 
