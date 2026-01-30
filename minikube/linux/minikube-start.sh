@@ -1,3 +1,3 @@
-. set-http-proxy.sh
+. set-proxy-env.sh
 
 minikube start %*
