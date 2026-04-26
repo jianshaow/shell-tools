@@ -1,7 +1,7 @@
 #!/bin/bash
 
 alias dc='docker compose'
-alias di='docker images'
+alias di='docker images -a --format table'
 alias dp='docker ps'
 
 if [ -f /usr/share/bash-completion/completions/docker ]; then
